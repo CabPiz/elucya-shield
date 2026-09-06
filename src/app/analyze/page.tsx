@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePlan } from "@/components/providers/revenuecat-provider";
+import { PaywallModal } from "@/components/shield/paywall-modal";
 import { Shield, AlertTriangle, CheckCircle, XCircle, Loader2, Search, FlaskConical, Globe, ExternalLink, Flag } from "lucide-react";
 import type { RiskReport, RiskLevel } from "@/types";
 import Link from "next/link";
@@ -199,6 +201,8 @@ const SEVERITY_COLORS = {
 export default function AnalyzePage() {
   const [lang, setLang] = useState<Lang>("pt");
   const t = T[lang];
+  const { plan } = usePlan();
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const [message, setMessage] = useState("");
   const [context, setContext] = useState<MessageContext>("email");
@@ -372,7 +376,13 @@ export default function AnalyzePage() {
             <input
               type="checkbox"
               checked={deepResearch}
-              onChange={(e) => setDeepResearch(e.target.checked)}
+              onChange={(e) => {
+                if (e.target.checked && !plan?.entitlements.includes("deep_research")) {
+                  setShowPaywall(true);
+                } else {
+                  setDeepResearch(e.target.checked);
+                }
+              }}
               className="w-4 h-4 rounded border-zinc-600 bg-zinc-900 text-blue-500 focus:ring-blue-500"
             />
             <span className="text-sm text-zinc-300 flex items-center gap-1">
@@ -623,6 +633,14 @@ export default function AnalyzePage() {
       <div className="mt-8 p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl">
         <p className="text-xs text-zinc-400 text-center">{t.disclaimer}</p>
       </div>
+
+      {/* Paywall modal */}
+      {showPaywall && (
+        <PaywallModal
+          lang={lang}
+          onClose={() => setShowPaywall(false)}
+        />
+      )}
     </main>
   );
 }

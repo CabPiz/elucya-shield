@@ -10,7 +10,7 @@ import { recordAgentRun } from "@/lib/supabase/server";
 
 // Endpoint OpenAI-compatível do Gemini
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai";
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 interface Message {
   role: "system" | "user" | "assistant";
@@ -120,7 +120,7 @@ export async function classifyWithNebius(
     { model: GEMINI_MODEL, delay: 0 },
     { model: "gemini-2.5-flash", delay: 1000 },
     { model: "gemini-2.0-flash", delay: 1000 },
-    { model: "gemini-2.0-flash-lite", delay: 1000 },
+    { model: "gemini-3.5-flash-lite", delay: 1000 }, // gemini-2.0-flash-lite deprecated → 3.5-flash-lite
   ];
 
   let response: Response | null = null;
@@ -144,6 +144,7 @@ export async function classifyWithNebius(
         max_tokens: 4000,
         response_format: { type: "json_object" },
       }),
+      signal: AbortSignal.timeout(30000), // 30s timeout per model attempt
     });
 
     if (response.ok) break;

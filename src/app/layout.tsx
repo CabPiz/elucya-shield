@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { RevenueCatProvider } from "@/components/providers/revenuecat-provider";
 
 export const metadata: Metadata = {
   title: "Elucya Shield — Detector de Golpes Digitais",
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="min-h-screen bg-[#0a0a0a] text-white antialiased">
-        {children}
+        <RevenueCatProvider>
+          {children}
+        </RevenueCatProvider>
       </body>
     </html>
   );
