@@ -100,6 +100,22 @@ REVENUECAT_SECRET_KEY=
 
 Next.js 15 · TypeScript strict · Tailwind v4 · Supabase · Linkup · RevenueCat · Google Gemini
 
+## Estrutura do projeto
+
+```
+src/
+├── app/
+│   ├── page.tsx              # Landing page (i18n: EN/PT/ES)
+│   ├── analyze/page.tsx      # UI de análise
+│   └── api/analyze/route.ts  # Pipeline principal (Gemini → Linkup → Gemini)
+├── lib/
+│   ├── nebius/classify.ts    # Classificador Gemini (endpoint OpenAI-compatível)
+│   └── linkup/client.ts      # Pesquisa de entidades Linkup (EN/PT/ES)
+├── components/
+│   └── shield/               # PaywallModal, cards de resultado
+└── types/index.ts            # Schemas Zod: AnalyzeRequest, RiskReport, EntityResearch
+```
+
 ## Leia também
 
 - `CLAUDE.md` — contexto completo para desenvolvimento com IA
