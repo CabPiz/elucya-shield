@@ -24,8 +24,8 @@ Após o hackathon, o Elucya Shield será migrado para o Turborepo do Elucya Talk
 | Track | Sponsor | Prêmio | Requisito |
 |---|---|---|---|
 | DEEP RESEARCH | Linkup | $500 | Usar Linkup API para pesquisa profunda |
-| APPLIED AI | Nebius | $500 | Usar Nebius para inferência de IA no fluxo principal |
-| SUBSCRIPTIONS | RevenueCat | $500 | Integrar RevenueCat para controle de acesso por planos |
+| APPLIED AI | Nebius | $500 | ~~Não participando~~ — cadastro de cartão recusado pela Nebius, impossível gerar API key |
+| SUBSCRIPTIONS | RevenueCat | $500 | Integrar RevenueCat para controle de acesso por planos *(implementação pendente)* |
 
 ### MCP do Hackathon
 
