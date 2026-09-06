@@ -43,11 +43,11 @@ export async function POST(req: NextRequest) {
         report.entities.map(async (entity) => {
           switch (entity.type) {
             case "company":
-              return researchCompany(entity.entity);
+              return researchCompany(entity.entity, lang);
             case "email_domain":
-              return researchEmailDomain(entity.entity);
+              return researchEmailDomain(entity.entity, lang);
             case "github_repo":
-              return researchGitHubRepo(entity.entity);
+              return researchGitHubRepo(entity.entity, lang);
             default:
               return entity; // Retorna original para tipos não suportados ainda
           }

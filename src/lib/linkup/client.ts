@@ -150,7 +150,7 @@ function extractFromResult(result: LinkupSearchResult): {
 
 // ─── Public research functions ────────────────────────────────────────────────
 
-export async function researchCompany(companyName: string, lang: Lang = "pt"): Promise<EntityResearch> {
+export async function researchCompany(companyName: string, lang: Lang = "en"): Promise<EntityResearch> {
   const client = getLinkupClient();
   const rf = RF.company[lang];
 
@@ -180,7 +180,7 @@ export async function researchCompany(companyName: string, lang: Lang = "pt"): P
   };
 }
 
-export async function researchEmailDomain(domain: string, lang: Lang = "pt"): Promise<EntityResearch> {
+export async function researchEmailDomain(domain: string, lang: Lang = "en"): Promise<EntityResearch> {
   const client = getLinkupClient();
   const rf = RF.emailDomain[lang];
 
@@ -210,7 +210,7 @@ export async function researchEmailDomain(domain: string, lang: Lang = "pt"): Pr
   };
 }
 
-export async function researchGitHubRepo(repoUrl: string, lang: Lang = "pt"): Promise<EntityResearch> {
+export async function researchGitHubRepo(repoUrl: string, lang: Lang = "en"): Promise<EntityResearch> {
   const client = getLinkupClient();
   const rf = RF.github[lang];
 
