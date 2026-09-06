@@ -204,34 +204,36 @@ export async function classifyWithNebius(
     es: "Investigación pendiente",
   };
 
-  const entities = (parsed.entities || []).map(
-    (e: { entity: string; type: string }) => ({
-      entity: e.entity,
-      type: e.type || "unknown",
-      found: false,
-      legitimacy: 50,
-      redFlags: [],
-      summary: pendingLabel[lang] || pendingLabel.pt,
-    })
-  );
+  const rawEntities = Array.isArray(parsed.entities)
+    ? (parsed.entities as Array<{ entity: string; type: string }>)
+    : [];
+  const entities = rawEntities.map((e) => ({
+    entity: e.entity,
+    type: e.type || "unknown",
+    found: false,
+    legitimacy: 50,
+    redFlags: [] as string[],
+    summary: pendingLabel[lang] || pendingLabel.pt,
+  }));
 
-  const flags: ScamFlag[] = (parsed.flags || []).map(
-    (f: { code: string; label: string; severity: string; description: string; evidence?: string }) => ({
-      code: f.code || "UNKNOWN",
-      label: f.label || "Alerta",
-      severity: (["low", "medium", "high", "critical"].includes(f.severity) ? f.severity : "medium") as ScamFlag["severity"],
-      description: f.description || "",
-      evidence: f.evidence,
-    })
-  );
+  const rawFlags = Array.isArray(parsed.flags)
+    ? (parsed.flags as Array<{ code: string; label: string; severity: string; description: string; evidence?: string }>)
+    : [];
+  const flags: ScamFlag[] = rawFlags.map((f) => ({
+    code: f.code || "UNKNOWN",
+    label: f.label || "Alerta",
+    severity: (["low", "medium", "high", "critical"].includes(f.severity) ? f.severity : "medium") as ScamFlag["severity"],
+    description: f.description || "",
+    evidence: f.evidence,
+  }));
 
   return {
-    score: Math.min(100, Math.max(0, parsed.score || 0)),
-    level: (["safe", "suspicious", "danger"].includes(parsed.level) ? parsed.level : "suspicious") as "safe" | "suspicious" | "danger",
+    score: Math.min(100, Math.max(0, (parsed.score as number) || 0)),
+    level: (["safe", "suspicious", "danger"].includes(parsed.level as string) ? parsed.level : "suspicious") as "safe" | "suspicious" | "danger",
     flags,
     entities,
-    recommendation: parsed.recommendation || "Proceda com cautela.",
-    summary: parsed.summary || "Análise concluída.",
-    attackVector: parsed.attackVector,
+    recommendation: (parsed.recommendation as string) || "Proceda com cautela.",
+    summary: (parsed.summary as string) || "Análise concluída.",
+    attackVector: parsed.attackVector as string | undefined,
   };
 }
