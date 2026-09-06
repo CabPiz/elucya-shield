@@ -42,6 +42,8 @@ const T = {
     channels: { email: "E-mail", discord: "Discord", whatsapp: "WhatsApp", telegram: "Telegram", other: "Outro" },
     errorAnalysis: "Erro ao analisar mensagem",
     errorNetwork: "Falha na comunicação com o servidor",
+    errorOverload: "O serviço de IA está sobrecarregado no momento. Aguarde alguns segundos e tente novamente.",
+    errorRetry: "Tentar novamente",
     emailFromLabel: "De",
     emailSubjectLabel: "Assunto",
     linkupHint: "Para pesquisar as entidades, marque 'Pesquisa profunda (Linkup)' antes de analisar.",
@@ -82,6 +84,8 @@ const T = {
     channels: { email: "Email", discord: "Discord", whatsapp: "WhatsApp", telegram: "Telegram", other: "Other" },
     errorAnalysis: "Error analyzing message",
     errorNetwork: "Server communication failure",
+    errorOverload: "The AI service is currently overloaded. Wait a few seconds and try again.",
+    errorRetry: "Try again",
     emailFromLabel: "From",
     emailSubjectLabel: "Subject",
     linkupHint: "To research entities, check 'Deep research (Linkup)' before analyzing.",
@@ -122,6 +126,8 @@ const T = {
     channels: { email: "Correo", discord: "Discord", whatsapp: "WhatsApp", telegram: "Telegram", other: "Otro" },
     errorAnalysis: "Error al analizar el mensaje",
     errorNetwork: "Error de comunicación con el servidor",
+    errorOverload: "El servicio de IA está sobrecargado en este momento. Espera unos segundos e intenta de nuevo.",
+    errorRetry: "Intentar de nuevo",
     emailFromLabel: "De",
     emailSubjectLabel: "Asunto",
     linkupHint: "Para investigar las entidades, marque 'Investigación profunda (Linkup)' antes de analizar.",
@@ -214,6 +220,7 @@ export default function AnalyzePage() {
   const [error, setError] = useState<string | null>(null);
   const [confirmState, setConfirmState] = useState<"idle" | "loading" | "confirmed">("idle");
   const [similarCount, setSimilarCount] = useState<number>(0);
+  const [retryable, setRetryable] = useState(false);
   const isConfirming = useRef(false);
 
   // Sync language with home page preference stored in localStorage
@@ -250,6 +257,7 @@ export default function AnalyzePage() {
     setLoading(true);
     setReport(null);
     setError(null);
+    setRetryable(false);
     setConfirmState("idle");
     setSimilarCount(0);
     isConfirming.current = false;
@@ -271,12 +279,21 @@ export default function AnalyzePage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || t.errorAnalysis);
+        const errorMsg = data.error || t.errorAnalysis;
+        const isOverload =
+          res.status === 503 || res.status === 429 ||
+          errorMsg.includes("503") || errorMsg.includes("high demand") ||
+          errorMsg.includes("UNAVAILABLE") || errorMsg.includes("overloaded") ||
+          errorMsg.includes("sobrecargado") || errorMsg.includes("sobrecarregado");
+        setRetryable(isOverload);
+        setError(isOverload ? t.errorOverload : errorMsg);
         return;
       }
       setReport(data as RiskReport);
-    } catch {
-      setError(t.errorNetwork);
+    } catch (err) {
+      const isTimeout = err instanceof Error && err.name === "AbortError";
+      setRetryable(isTimeout);
+      setError(isTimeout ? t.errorOverload : t.errorNetwork);
     } finally {
       setLoading(false);
     }
@@ -477,7 +494,15 @@ export default function AnalyzePage() {
       {/* Error */}
       {error && (
         <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300 text-sm mb-6">
-          {error}
+          <p>{error}</p>
+          {retryable && (
+            <button
+              onClick={handleAnalyze}
+              className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 rounded-lg text-red-200 text-sm font-medium transition-colors"
+            >
+              ↺ {t.errorRetry}
+            </button>
+          )}
         </div>
       )}
 
