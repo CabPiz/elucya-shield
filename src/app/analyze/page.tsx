@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Shield, AlertTriangle, CheckCircle, XCircle, Loader2, Search, FlaskConical, Globe } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Shield, AlertTriangle, CheckCircle, XCircle, Loader2, Search, FlaskConical, Globe, ExternalLink, Flag } from "lucide-react";
 import type { RiskReport, RiskLevel } from "@/types";
 import Link from "next/link";
 
@@ -38,6 +38,17 @@ const T = {
       danger: "PERIGO — não prossiga",
     },
     channels: { email: "E-mail", discord: "Discord", whatsapp: "WhatsApp", telegram: "Telegram", other: "Outro" },
+    errorAnalysis: "Erro ao analisar mensagem",
+    errorNetwork: "Falha na comunicação com o servidor",
+    emailFromLabel: "De",
+    emailSubjectLabel: "Assunto",
+    linkupHint: "Para pesquisar as entidades, marque 'Pesquisa profunda (Linkup)' antes de analisar.",
+    notSupportedByLinkup: "Tipo de entidade não analisado pelo Linkup.",
+    certLabel: "Denunciar ao CERT.br",
+    certUrl: "https://www.cert.br/reportar/",
+    confirmScam: "Confirmar como golpe",
+    confirmScamLoading: "Registrando...",
+    confirmScamDone: (n: number) => `✓ Confirmado — você ajudou ${n} ${n === 1 ? "pessoa" : "pessoas"} a ficarem seguras`,
   },
   en: {
     subtitle: "Suspicious message analysis",
@@ -67,6 +78,17 @@ const T = {
       danger: "DANGER — do not proceed",
     },
     channels: { email: "Email", discord: "Discord", whatsapp: "WhatsApp", telegram: "Telegram", other: "Other" },
+    errorAnalysis: "Error analyzing message",
+    errorNetwork: "Server communication failure",
+    emailFromLabel: "From",
+    emailSubjectLabel: "Subject",
+    linkupHint: "To research entities, check 'Deep research (Linkup)' before analyzing.",
+    notSupportedByLinkup: "Entity type not analyzed by Linkup.",
+    certLabel: "Report to FBI IC3",
+    certUrl: "https://www.ic3.gov/",
+    confirmScam: "Confirm as scam",
+    confirmScamLoading: "Submitting...",
+    confirmScamDone: (n: number) => `✓ Confirmed — you helped ${n} ${n === 1 ? "person" : "people"} stay safe`,
   },
   es: {
     subtitle: "Análisis de mensaje sospechoso",
@@ -96,6 +118,17 @@ const T = {
       danger: "PELIGRO — no proceda",
     },
     channels: { email: "Correo", discord: "Discord", whatsapp: "WhatsApp", telegram: "Telegram", other: "Otro" },
+    errorAnalysis: "Error al analizar el mensaje",
+    errorNetwork: "Error de comunicación con el servidor",
+    emailFromLabel: "De",
+    emailSubjectLabel: "Asunto",
+    linkupHint: "Para investigar las entidades, marque 'Investigación profunda (Linkup)' antes de analizar.",
+    notSupportedByLinkup: "Tipo de entidad no analizado por Linkup.",
+    certLabel: "Reportar a Interpol",
+    certUrl: "https://www.interpol.int/es/Delitos/Ciberdelincuencia",
+    confirmScam: "Confirmar como estafa",
+    confirmScamLoading: "Registrando...",
+    confirmScamDone: (n: number) => `✓ Confirmado — ayudaste a ${n} ${n === 1 ? "persona" : "personas"} a estar seguras`,
   },
 } as const;
 
@@ -175,6 +208,18 @@ export default function AnalyzePage() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<RiskReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmState, setConfirmState] = useState<"idle" | "loading" | "confirmed">("idle");
+  const [similarCount, setSimilarCount] = useState<number>(0);
+  const isConfirming = useRef(false);
+
+  // Reset analysis whenever the user switches language
+  useEffect(() => {
+    setReport(null);
+    setError(null);
+    setConfirmState("idle");
+    setSimilarCount(0);
+    isConfirming.current = false;
+  }, [lang]);
 
   function fillTestCase() {
     setContext(TEST_CASE.context);
@@ -191,12 +236,15 @@ export default function AnalyzePage() {
     setLoading(true);
     setReport(null);
     setError(null);
+    setConfirmState("idle");
+    setSimilarCount(0);
+    isConfirming.current = false;
 
     let fullMessage = message;
     if (context === "email") {
       const prefix: string[] = [];
-      if (emailFrom.trim()) prefix.push(`De: ${emailFrom.trim()}`);
-      if (emailSubject.trim()) prefix.push(`Assunto: ${emailSubject.trim()}`);
+      if (emailFrom.trim()) prefix.push(`${t.emailFromLabel}: ${emailFrom.trim()}`);
+      if (emailSubject.trim()) prefix.push(`${t.emailSubjectLabel}: ${emailSubject.trim()}`);
       if (prefix.length > 0) fullMessage = prefix.join("\n") + "\n\n" + message;
     }
 
@@ -209,14 +257,55 @@ export default function AnalyzePage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Erro ao analisar mensagem");
+        setError(data.error || t.errorAnalysis);
         return;
       }
       setReport(data as RiskReport);
     } catch {
-      setError("Falha na comunicação com o servidor");
+      setError(t.errorNetwork);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleConfirmScam() {
+    if (!report || confirmState !== "idle" || isConfirming.current) return;
+    isConfirming.current = true;
+    setConfirmState("loading");
+
+    const entityDomains = report.entities
+      .filter((e) => e.type === "email_domain" || e.type === "company")
+      .map((e) => e.entity);
+
+    try {
+      const res = await fetch("/api/confirm-scam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          score: report.score,
+          level: report.level,
+          attackVector: report.attackVector,
+          entityDomains,
+          entityCount: report.entities.length,
+          flagsCount: report.flags.length,
+          lang,
+          channel: context,
+          analyzedAt: report.analyzedAt,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setSimilarCount(data.similarCount ?? 0);
+        setConfirmState("confirmed");
+        isConfirming.current = false;
+      } else {
+        setConfirmState("idle");
+        isConfirming.current = false;
+      }
+    } catch {
+      setConfirmState("idle");
+      isConfirming.current = false;
     }
   }
 
@@ -440,9 +529,15 @@ export default function AnalyzePage() {
           {/* Entities */}
           {report.entities.length > 0 && (
             <div className="p-4 bg-zinc-900 border border-zinc-700 rounded-xl">
-              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
+              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">
                 {t.entitiesTitle} ({report.entities.length})
               </p>
+              {!deepResearch && (
+                <p className="text-xs text-zinc-500 mb-3 flex items-center gap-1">
+                  <Search className="w-3 h-3 shrink-0" />
+                  {t.linkupHint}
+                </p>
+              )}
               <div className="space-y-3">
                 {report.entities.map((entity, i) => (
                   <div key={i} className="border border-zinc-700 rounded-lg p-3">
@@ -458,7 +553,13 @@ export default function AnalyzePage() {
                         </span>
                       </div>
                     </div>
-                    <p className="text-xs text-zinc-300">{entity.summary}</p>
+                    <p className="text-xs text-zinc-300">
+                      {/pendente|pending|pendiente/i.test(entity.summary ?? "")
+                        ? deepResearch
+                          ? t.notSupportedByLinkup
+                          : t.linkupHint
+                        : entity.summary}
+                    </p>
                     {entity.redFlags.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {entity.redFlags.map((flag, j) => (
@@ -471,6 +572,43 @@ export default function AnalyzePage() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Actions: CERT report + Confirm scam */}
+          {report.level !== "safe" && (
+            <div className="flex flex-wrap items-center gap-3">
+              {/* CERT agency button */}
+              <a
+                href={t.certUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 rounded-lg text-sm text-zinc-200 transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                {t.certLabel}
+              </a>
+
+              {/* Confirm scam button */}
+              {confirmState === "confirmed" ? (
+                <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-300">
+                  <CheckCircle className="w-4 h-4 shrink-0" />
+                  {t.confirmScamDone(similarCount)}
+                </div>
+              ) : (
+                <button
+                  onClick={handleConfirmScam}
+                  disabled={confirmState === "loading"}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-sm text-red-300 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {confirmState === "loading" ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                  ) : (
+                    <Flag className="w-3.5 h-3.5 shrink-0" />
+                  )}
+                  {confirmState === "loading" ? t.confirmScamLoading : t.confirmScam}
+                </button>
+              )}
             </div>
           )}
 
