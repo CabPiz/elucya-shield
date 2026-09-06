@@ -1,47 +1,49 @@
 # Elucya Shield 🛡️
 
-**Detector de golpes e fraudes em comunicações digitais**
+**Digital scam and fraud detector for any messaging channel**
 
-Produto Kairos Labs · Hackathon Burning Token 2026
+Kairos Labs · Burning Token Hackathon 2026
+
+🌐 [Português](./README.pt.md) · [Español](./README.es.md)
 
 ---
 
-## O que faz
+## What it does
 
-Cola uma mensagem suspeita (e-mail, Discord, WhatsApp...) e o Elucya Shield:
+Paste any suspicious message (email, Discord, WhatsApp...) and Elucya Shield will:
 
-1. **Pesquisa** as entidades mencionadas (empresa, domínio, e-mail) via Linkup
-2. **Classifica** o risco com IA (via API compatível com OpenAI)
-3. **Exibe** um dossier completo com score 0–100, alertas e recomendação
-4. **Registra** confirmações de golpe para alertar outras pessoas
+1. **Research** mentioned entities (company, domain, email) via Linkup deep search
+2. **Classify** the risk with AI and return a score from 0 to 100
+3. **Display** a full dossier with flags, evidence and a recommendation
+4. **Record** scam confirmations to warn future victims through collective intelligence
 
-## Setup rápido
+## Quick start
 
 ```bash
-# 1. Instalar dependências
+# 1. Install dependencies
 pnpm install
 
-# 2. Configurar variáveis de ambiente
+# 2. Set environment variables
 cp .env.example .env
-# Editar .env com suas chaves (Linkup, RevenueCat, Supabase)
+# Fill in your keys (Linkup, RevenueCat, Supabase)
 
-# 3. Rodar em desenvolvimento
+# 3. Run in development
 pnpm dev
 ```
 
-## Tracks do hackathon
+## Hackathon tracks
 
-- **DEEP RESEARCH** (Linkup) — pesquisa profunda de entidades mencionadas na mensagem
-- **SUBSCRIPTIONS** (RevenueCat) — controle de planos e entitlements *(implementação pendente)*
+- **DEEP RESEARCH** (Linkup) — deep entity research on every analyzed message
+- **SUBSCRIPTIONS** (RevenueCat) — plan-based access control *(implementation pending)*
 
-> **Nota:** A track APPLIED AI (Nebius) não foi incluída pois o cadastro de cartão de crédito
-> na plataforma Nebius foi recusado, impossibilitando a geração de API key.
+> **Note:** The APPLIED AI track (Nebius) was not included because the credit card
+> registration on the Nebius platform was refused, making it impossible to generate an API key.
 
 ## Stack
 
 Next.js 15 · TypeScript · Tailwind v4 · Supabase · Linkup · RevenueCat
 
-## Leia também
+## See also
 
-- `CLAUDE.md` — contexto completo para desenvolvimento com IA
-- `.env.example` — variáveis de ambiente necessárias
+- `CLAUDE.md` — full context for AI-assisted development
+- `.env.example` — all required environment variables
