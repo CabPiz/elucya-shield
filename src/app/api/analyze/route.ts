@@ -55,11 +55,15 @@ export async function POST(req: NextRequest) {
       );
 
       // Atualizar entidades com resultado da pesquisa
+      const linkupErrors: string[] = [];
       report.entities = researchResults.map((result, idx) => {
         if (result.status === "fulfilled") return result.value;
-        console.error(`[Linkup] Research failed for entity ${idx}:`, result.reason);
+        const errMsg = String(result.reason?.message || result.reason);
+        console.error(`[Linkup] Research failed for entity ${idx}:`, errMsg);
+        linkupErrors.push(`entity[${idx}]: ${errMsg}`);
         return report.entities[idx]; // Fallback para resultado original
       });
+      if (linkupErrors.length > 0) console.warn("[Linkup] Errors:", linkupErrors);
 
       // Construir contexto da pesquisa para reclassificação
       const researchContext = report.entities
