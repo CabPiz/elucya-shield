@@ -1,10 +1,22 @@
-# Elucya Shield
+# Elucya Shield 🛡️
 
-**Elucya Shield** is a digital scam detector built for developers and tech professionals. Paste any suspicious message — fake job offer, phishing email, unknown link — and receive a complete risk dossier in seconds: risk score, danger flags, entity research, and clear recommendations.
+**Digital scam and fraud detector for any messaging channel**
 
-> Built for **Hackathon Burning Token 2026 / NERDCONF** by César Brito, Kairos Labs.
+Kairos Labs · Hackathon Burning Token 2026
+
+🌐 [Português](./README.pt.md) · [Español](./README.es.md)
 
 ---
+
+## What It Does
+
+Paste a suspicious message (email, Discord, WhatsApp...) and Elucya Shield:
+
+1. **Classifies** the risk with AI and returns a score from 0 to 100
+2. **Researches** the mentioned entities (company, domain, GitHub repo) via Linkup
+3. **Reclassifies** with the research context for a more accurate final score
+4. **Displays** a complete dossier with alerts, evidence, and a clear recommendation
+5. **Records** scam confirmations to warn future victims via collective intelligence
 
 ## Hackathon Tracks
 
@@ -12,13 +24,9 @@
 |---|---|---|
 | **DEEP RESEARCH** | Linkup SDK — deep web search for entity verification | ✅ Active |
 | **SUBSCRIPTIONS** | RevenueCat — free tier (3 analyses/month) + Pro plan | ✅ Active |
-| **APPLIED AI** | Google Gemini 2.5 Flash (OpenAI-compatible endpoint) | ✅ Active |
+| **APPLIED AI** | Google Gemini 2.5 Flash (OpenAI-compatible endpoint, free tier) | ✅ Active |
 
----
-
-## How It Works
-
-### Analysis Pipeline
+## How It Works — Analysis Pipeline
 
 ```
 User message
@@ -55,41 +63,25 @@ Linkup performs deep web searches and returns the actual content found on the in
 
 This is intentional and by design:
 
-- **Red flag badges** (e.g., "Mentioned in scam reports", "Domain associated with phishing") are **fully localized** — they come from a curated translation table (`RF` constant in `src/lib/linkup/client.ts`) and are rendered in the user's selected language (EN / PT / ES).
-- **Research summaries** are the raw evidence text from the web — showing them unmodified preserves authenticity and traceability (sources are linked). Translating them would require an additional LLM call, adding latency and cost.
-- **All UI strings** (labels, recommendations, attack vectors, scam flags from Gemini) are fully localized via the `T` translation object and the `lang` parameter passed through the entire pipeline.
+- **Red flag badges** are **fully localized** — they come from a curated translation table (`RF` constant in `src/lib/linkup/client.ts`) and are rendered in the user's selected language (EN / PT / ES).
+- **Research summaries** are raw evidence text from the web — showing them unmodified preserves authenticity and traceability (sources are linked).
+- **All UI strings** (labels, recommendations, attack vectors, scam flags from Gemini) are fully localized via the `lang` parameter passed through the entire pipeline.
 
 In short: the *verdict* is localized; the *raw evidence* is shown as-is from the source.
 
----
+## Quick Setup
 
-## Tech Stack
+```bash
+# 1. Install dependencies
+npm install
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 15 (App Router, TypeScript strict mode) |
-| AI Classifier | Google Gemini 2.5 Flash via AI Studio (free tier, OpenAI-compatible endpoint) |
-| Deep Research | Linkup SDK (deep web search) |
-| Subscriptions | RevenueCat (free: 3/month · Pro: unlimited) |
-| Database | Supabase (observability, scam confirmations) |
-| Deployment | Render Web Service (auto-deploy from GitHub) |
-| Validation | Zod (input and output schemas) |
+# 2. Configure environment variables
+cp .env.example .env.local
+# Fill in your keys (see below)
 
----
-
-## Key Features
-
-**Smart Detection** — Gemini analyzes scam patterns specific to developers: fake job offers that ask you to clone and run a repository, technical assessments with malicious npm packages, crypto wallet theft via seed phrase requests, and typosquatting domains.
-
-**Deep Research** — Linkup verifies companies, email domains, and GitHub repositories in real time against scam reports, phishing databases, and security disclosures. You see the evidence, not just a score.
-
-**Multilingual** — Full EN / PT / ES support with localStorage persistence. The language setting flows from the UI through the Gemini prompt and Linkup research functions so flags and recommendations are always in the user's language.
-
-**Retry on Overload** — When the AI service returns 503/429 (high demand), the UI shows a friendly "try again" button instead of a raw error message.
-
-**Scam Confirmation** — Users can confirm an analysis as a real scam. Confirmations are stored in Supabase and surface a counter ("you helped N people stay safe"), turning individual analyses into a crowdsourced threat signal.
-
----
+# 3. Run in development
+npm run dev
+```
 
 ## Environment Variables
 
@@ -104,23 +96,9 @@ NEXT_PUBLIC_REVENUECAT_API_KEY=
 REVENUECAT_SECRET_KEY=
 ```
 
----
+## Stack
 
-## Running Locally
-
-```bash
-npm install
-cp .env.example .env.local   # fill in your keys
-npm run dev
-```
-
-Build check (runs ESLint + TypeScript + Next.js compilation):
-
-```bash
-npm run build
-```
-
----
+Next.js 15 · TypeScript strict · Tailwind v4 · Supabase · Linkup · RevenueCat · Google Gemini
 
 ## Project Structure
 
@@ -138,6 +116,7 @@ src/
 └── types/index.ts            # Zod schemas: AnalyzeRequest, RiskReport, EntityResearch
 ```
 
----
+## See Also
 
-*Elucya Shield · Kairos Labs · Hackathon Burning Token 2026*
+- `CLAUDE.md` — full context for AI-assisted development
+- `.env.example` — required environment variables
