@@ -199,7 +199,7 @@ const SEVERITY_COLORS = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AnalyzePage() {
-  const [lang, setLang] = useState<Lang>("pt");
+  const [lang, setLang] = useState<Lang>("en");
   const t = T[lang];
   const { plan } = usePlan();
   const [showPaywall, setShowPaywall] = useState(false);
@@ -215,6 +215,16 @@ export default function AnalyzePage() {
   const [confirmState, setConfirmState] = useState<"idle" | "loading" | "confirmed">("idle");
   const [similarCount, setSimilarCount] = useState<number>(0);
   const isConfirming = useRef(false);
+
+  // Sync language with home page preference stored in localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("elucya_lang") as Lang | null;
+      if (stored && (["en", "pt", "es"] as Lang[]).includes(stored)) setLang(stored);
+    } catch {
+      // localStorage unavailable — keep default
+    }
+  }, []);
 
   // Reset analysis whenever the user switches language
   useEffect(() => {
@@ -333,10 +343,13 @@ export default function AnalyzePage() {
         {/* Language selector */}
         <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-700 rounded-lg p-1">
           <Globe className="w-3.5 h-3.5 text-zinc-400 ml-1" />
-          {(["pt", "en", "es"] as Lang[]).map((l) => (
+          {(["en", "pt", "es"] as Lang[]).map((l) => (
             <button
               key={l}
-              onClick={() => setLang(l)}
+              onClick={() => {
+                setLang(l);
+                try { localStorage.setItem("elucya_lang", l); } catch { /* ignore */ }
+              }}
               className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors uppercase ${
                 lang === l
                   ? "bg-blue-600 text-white"
