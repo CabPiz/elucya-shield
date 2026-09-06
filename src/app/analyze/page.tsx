@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePlan } from "@/components/providers/revenuecat-provider";
 import { PaywallModal } from "@/components/shield/paywall-modal";
 import { Shield, AlertTriangle, CheckCircle, XCircle, Loader2, Search, FlaskConical, Globe, ExternalLink, Flag } from "lucide-react";
-import type { RiskReport, RiskLevel } from "@/types";
+import type { RiskReport } from "@/types";
 import Link from "next/link";
 
 // ─── i18n ────────────────────────────────────────────────────────────────────
@@ -527,7 +527,7 @@ export default function AnalyzePage() {
                       <p className="text-sm font-medium text-white">{flag.label}</p>
                       <p className="text-xs text-zinc-300 mt-0.5">{flag.description}</p>
                       {flag.evidence && (
-                        <p className="text-xs text-zinc-400 mt-1 italic">"{flag.evidence}"</p>
+                        <p className="text-xs text-zinc-400 mt-1 italic">&ldquo;{flag.evidence}&rdquo;</p>
                       )}
                     </div>
                   </div>

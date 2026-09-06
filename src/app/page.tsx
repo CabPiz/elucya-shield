@@ -23,7 +23,7 @@ export default function Home() {
         </p>
 
         <p className="text-zinc-500 max-w-xl mb-10">
-          Cole qualquer mensagem suspeita — e-mail de "vaga de emprego", oferta financeira,
+          Cole qualquer mensagem suspeita — e-mail de &ldquo;vaga de emprego&rdquo;, oferta financeira,
           link desconhecido — e receba em segundos um dossier completo com score de risco,
           flags de perigo e recomendações claras.
         </p>
@@ -89,9 +89,9 @@ export default function Home() {
       <section className="border-t border-zinc-800 py-12 px-4 bg-zinc-900/30">
         <div className="max-w-2xl mx-auto text-center">
           <p className="text-zinc-400 italic text-lg leading-relaxed">
-            "Quase caí num golpe por e-mail — uma 'vaga de emprego' que me faria rodar
+            &ldquo;Quase caí num golpe por e-mail — uma &lsquo;vaga de emprego&rsquo; que me faria rodar
             código malicioso para roubar minha wallet de cripto. Criei o Elucya Shield
-            para que nenhum programador passe pelo mesmo susto."
+            para que nenhum programador passe pelo mesmo susto.&rdquo;
           </p>
           <p className="mt-4 text-zinc-600 text-sm">— César Brito, fundador da Kairos Labs</p>
         </div>

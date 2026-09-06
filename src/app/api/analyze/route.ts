@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { message, context: messageContext, includeDeepResearch, lang } = parsed.data;
+    const { message, includeDeepResearch, lang } = parsed.data;
 
     // Sanitização básica: limitar tamanho do contexto enviado ao LLM
     const sanitizedMessage = message.slice(0, 8000);
