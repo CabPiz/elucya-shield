@@ -100,20 +100,68 @@ export async function hasEntitlement(entitlement: Entitlement): Promise<boolean>
 }
 
 /**
- * Abre o paywall do RevenueCat para upgrade
+ * Inicia o fluxo de compra do RevenueCat para o plano selecionado.
+ * Tenta usar o package correto do offering atual; faz fallback para
+ * o primeiro package disponível, e por último abre o dashboard RC.
+ *
+ * @param planId - "shield" (padrão) ou "pro"
+ * @returns CustomerInfo após compra bem-sucedida, ou undefined se cancelado/falhou
  */
-export async function openPaywall() {
+export async function purchasePlan(planId: "shield" | "pro" = "shield") {
   if (typeof window === "undefined") return;
+
+  const apiKey = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY;
+  if (!apiKey) {
+    window.open("https://www.revenuecat.com", "_blank");
+    return;
+  }
 
   try {
     const { Purchases } = await import("@revenuecat/purchases-js");
     const offerings = await Purchases.getSharedInstance().getOfferings();
 
-    if (offerings.current) {
-      // TODO: renderizar paywall customizado com os packages do offering
-      console.log("[RevenueCat] Current offering:", offerings.current.identifier);
+    if (!offerings.current || offerings.current.availablePackages.length === 0) {
+      console.warn("[RevenueCat] No packages available — redirecting to dashboard");
+      window.open("https://app.revenuecat.com", "_blank");
+      return;
     }
-  } catch (err) {
-    console.error("[RevenueCat] Failed to open paywall:", err);
+
+    const packages = offerings.current.availablePackages;
+
+    // Tenta encontrar o package pelo nome do plano; fallback para o primeiro disponível
+    const targetPackage =
+      packages.find((p) =>
+        planId === "pro"
+          ? p.identifier.toLowerCase().includes("pro") || p.identifier === "$rc_annual"
+          : p.identifier.toLowerCase().includes("shield") || p.identifier === "$rc_monthly"
+      ) ?? packages[0];
+
+    console.log("[RevenueCat] Purchasing package:", targetPackage.identifier);
+
+    const { customerInfo } = await Purchases.getSharedInstance().purchase({
+      rcPackage: targetPackage,
+    });
+
+    console.log("[RevenueCat] Purchase successful:", customerInfo);
+    return customerInfo;
+  } catch (err: unknown) {
+    if (
+      err &&
+      typeof err === "object" &&
+      "userCancelled" in err &&
+      (err as { userCancelled: boolean }).userCancelled
+    ) {
+      console.log("[RevenueCat] Purchase cancelled by user");
+    } else {
+      console.error("[RevenueCat] Purchase failed:", err);
+    }
   }
+}
+
+/**
+ * @deprecated Use purchasePlan() em vez disso.
+ * Mantido por compatibilidade — redireciona para purchasePlan("shield").
+ */
+export async function openPaywall() {
+  return purchasePlan("shield");
 }
