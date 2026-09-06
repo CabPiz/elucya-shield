@@ -5,7 +5,7 @@
  * Google oferece endpoint OpenAI-compatível — mesma estrutura de chamada.
  */
 
-import { RiskReport, ScamFlag } from "@/types";
+import { RiskReport, ScamFlag, EntityResearch } from "@/types";
 import { recordAgentRun } from "@/lib/supabase/server";
 
 // Endpoint OpenAI-compatível do Gemini
@@ -204,12 +204,13 @@ export async function classifyWithNebius(
     es: "Investigación pendiente",
   };
 
+  const VALID_ENTITY_TYPES: EntityResearch["type"][] = ["company", "email_domain", "github_repo", "url", "person", "unknown"];
   const rawEntities = Array.isArray(parsed.entities)
     ? (parsed.entities as Array<{ entity: string; type: string }>)
     : [];
-  const entities = rawEntities.map((e) => ({
+  const entities: EntityResearch[] = rawEntities.map((e) => ({
     entity: e.entity,
-    type: e.type || "unknown",
+    type: (VALID_ENTITY_TYPES.includes(e.type as EntityResearch["type"]) ? e.type : "unknown") as EntityResearch["type"],
     found: false,
     legitimacy: 50,
     redFlags: [] as string[],
