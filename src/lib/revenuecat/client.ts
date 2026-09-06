@@ -120,13 +120,15 @@ export async function purchasePlan(planId: "shield" | "pro" = "shield") {
     const { Purchases } = await import("@revenuecat/purchases-js");
     const offerings = await Purchases.getSharedInstance().getOfferings();
 
-    if (!offerings.current || offerings.current.availablePackages.length === 0) {
+    // Try current offering first, fallback to "web" offering (RC Billing)
+    const offering = offerings.current ?? offerings.all["web"];
+    if (!offering || offering.availablePackages.length === 0) {
       console.warn("[RevenueCat] No packages available — redirecting to dashboard");
       window.open("https://app.revenuecat.com", "_blank");
       return;
     }
 
-    const packages = offerings.current.availablePackages;
+    const packages = offering.availablePackages;
 
     // Tenta encontrar o package pelo nome do plano; fallback para o primeiro disponível
     const targetPackage =
