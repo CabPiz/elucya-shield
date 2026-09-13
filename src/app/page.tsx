@@ -25,6 +25,7 @@ const T = {
     quote:
       "I almost fell for an email scam — a fake job offer that would have made me run malicious code to steal my crypto wallet. I built Elucya Shield so no developer has to go through the same scare.",
     quoteAuthor: "— César Brito, founder of Kairos Labs",
+    siteLabel: "Visit Kairos Labs",
     footer: "Elucya Shield · Kairos Labs · Hackathon Burning Token 2026",
   },
   pt: {
@@ -45,6 +46,7 @@ const T = {
     quote:
       "Quase caí num golpe por e-mail — uma vaga de emprego que me faria rodar código malicioso para roubar minha wallet de cripto. Criei o Elucya Shield para que nenhum programador passe pelo mesmo susto.",
     quoteAuthor: "— César Brito, fundador da Kairos Labs",
+    siteLabel: "Conheça a Kairos Labs",
     footer: "Elucya Shield · Kairos Labs · Hackathon Burning Token 2026",
   },
   es: {
@@ -65,6 +67,7 @@ const T = {
     quote:
       "Casi caí en una estafa por correo — una oferta de trabajo que me habría hecho ejecutar código malicioso para robar mi wallet de cripto. Creé Elucya Shield para que ningún desarrollador pase por el mismo susto.",
     quoteAuthor: "— César Brito, fundador de Kairos Labs",
+    siteLabel: "Visita Kairos Labs",
     footer: "Elucya Shield · Kairos Labs · Hackathon Burning Token 2026",
   },
 };
@@ -129,11 +132,11 @@ export default function Home() {
           Elucya <span className="text-blue-500">Shield</span>
         </h1>
 
-        <p className="text-xl sm:text-2xl text-zinc-400 mb-4 max-w-2xl">
+        <p className="text-xl sm:text-2xl text-zinc-200 mb-4 max-w-2xl">
           {t.subtitle}
         </p>
 
-        <p className="text-zinc-500 max-w-xl mb-10">{t.description}</p>
+        <p className="text-zinc-300 max-w-xl mb-10">{t.description}</p>
 
         <Link
           href="/analyze"
@@ -143,7 +146,7 @@ export default function Home() {
           {t.cta}
         </Link>
 
-        <p className="mt-4 text-sm text-zinc-600">{t.ctaNote}</p>
+        <p className="mt-4 text-sm text-zinc-400">{t.ctaNote}</p>
       </section>
 
       {/* Features */}
@@ -156,7 +159,7 @@ export default function Home() {
               </div>
             </div>
             <h3 className="font-semibold text-lg mb-2">{t.f1Title}</h3>
-            <p className="text-zinc-500 text-sm">{t.f1Desc}</p>
+            <p className="text-zinc-300 text-sm">{t.f1Desc}</p>
           </div>
 
           <div className="text-center">
@@ -166,7 +169,7 @@ export default function Home() {
               </div>
             </div>
             <h3 className="font-semibold text-lg mb-2">{t.f2Title}</h3>
-            <p className="text-zinc-500 text-sm">{t.f2Desc}</p>
+            <p className="text-zinc-300 text-sm">{t.f2Desc}</p>
           </div>
 
           <div className="text-center">
@@ -176,7 +179,7 @@ export default function Home() {
               </div>
             </div>
             <h3 className="font-semibold text-lg mb-2">{t.f3Title}</h3>
-            <p className="text-zinc-500 text-sm">{t.f3Desc}</p>
+            <p className="text-zinc-300 text-sm">{t.f3Desc}</p>
           </div>
         </div>
       </section>
@@ -184,15 +187,23 @@ export default function Home() {
       {/* Real story */}
       <section className="border-t border-zinc-800 py-12 px-4 bg-zinc-900/30">
         <div className="max-w-2xl mx-auto text-center">
-          <p className="text-zinc-400 italic text-lg leading-relaxed">
+          <p className="text-zinc-200 italic text-lg leading-relaxed">
             &ldquo;{t.quote}&rdquo;
           </p>
-          <p className="mt-4 text-zinc-600 text-sm">{t.quoteAuthor}</p>
+          <p className="mt-4 text-zinc-400 text-sm">{t.quoteAuthor}</p>
+          <a
+            href={`https://kairos-labs-lake.vercel.app/${lang}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-sm text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            {t.siteLabel} →
+          </a>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800 py-6 px-4 text-center text-zinc-600 text-sm">
+      <footer className="border-t border-zinc-800 py-6 px-4 text-center text-zinc-400 text-sm">
         <p>{t.footer}</p>
       </footer>
     </main>
