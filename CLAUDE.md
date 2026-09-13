@@ -171,7 +171,7 @@ elucya-shield/
 
 ## Convenções de Código
 
-- **Idioma dos commits:** português (Conventional Commits)
+- **Idioma dos commits:** inglês (Conventional Commits)
 - **Idioma do código:** inglês (variáveis, funções, tipos)
 - **Idioma da UI:** português brasileiro
 - **Observabilidade:** toda chamada a LLM registra em `agent_runs` no Supabase
